@@ -19,7 +19,6 @@ class SimpleAtomicLong
      */
     private long mValue;
 
-
     /**
      * The ReentrantReadWriteLock used to serialize access to mValue.
      */
