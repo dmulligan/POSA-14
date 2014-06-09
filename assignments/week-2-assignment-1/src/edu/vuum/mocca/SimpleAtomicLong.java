@@ -7,7 +7,7 @@ import java.util.concurrent.locks.Lock;
  * @class SimpleAtomicLong
  *
  * @brief This class implements a subset of the
- *        java.util.concurrent.atomic.AtomicLong class using a
+ *        java.util.concurrent.atomic.SimpleAtomicLong class using a
  *        ReentrantReadWriteLock to illustrate how they work.
  */
 class SimpleAtomicLong
@@ -16,14 +16,14 @@ class SimpleAtomicLong
      * The value that's manipulated atomically via the methods.
      */
     private long mValue;
-    
+
     /**
      * The ReentrantReadWriteLock used to serialize access to mValue.
      */
 
     // TODO -- you fill in here by replacing the null with an
     // initialization of ReentrantReadWriteLock.
-    private final ReentrantReadWriteLock mRWLock = new ReentrantReadWriteLock();
+    private ReentrantReadWriteLock mRWLock = new ReentrantReadWriteLock();
 
     /**
      * Creates a new SimpleAtomicLong with the given initial value.
@@ -32,11 +32,13 @@ class SimpleAtomicLong
     {
         // TODO -- you fill in here
     	mValue = initialValue;
+    	// There is no need to lock in the constructor as it can only be called by one thread,
+    	// which is the thread that created the object instance in the first place!
     }
 
     /**
      * @brief Gets the current value.
-     * 
+     *
      * @returns The current value
      */
     public long get()
@@ -80,8 +82,8 @@ class SimpleAtomicLong
 
         // TODO -- you fill in here
         mRWLock.writeLock().lock();
-        mValue--;
         value = mValue;
+        mValue++;
         mRWLock.writeLock().unlock();
 
         return value;
@@ -97,6 +99,10 @@ class SimpleAtomicLong
         long value = 0;
 
         // TODO -- you fill in here
+        mRWLock.writeLock().lock();
+        value = mValue;
+        mValue--;
+        mRWLock.writeLock().unlock();
 
         return value;
     }
@@ -111,6 +117,10 @@ class SimpleAtomicLong
         long value = 0;
 
         // TODO -- you fill in here
+        mRWLock.writeLock().lock();
+        mValue++;
+        value = mValue;
+        mRWLock.writeLock().unlock();
 
         return value;
     }
