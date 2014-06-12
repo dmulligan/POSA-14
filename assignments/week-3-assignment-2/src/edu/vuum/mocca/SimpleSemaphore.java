@@ -1,9 +1,9 @@
 package edu.vuum.mocca;
 
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.Lock;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @class SimpleSemaphore
@@ -31,13 +31,13 @@ public class SimpleSemaphore {
 	 */
 	// TODO - you fill in here. Make sure that this data member will
 	// ensure its values aren't cached by multiple Threads..
-	private volatile int mPermitCount = 0;
+	private final AtomicInteger mPermitCount;
 
 	public SimpleSemaphore(int permits, boolean fair) {
 		// TODO - you fill in here to initialize the SimpleSemaphore,
 		// making sure to allow both fair and non-fair Semaphore
 		// semantics.
-		mPermitCount = permits;
+		mPermitCount = new AtomicInteger(permits);
 		mLock = new ReentrantLock(fair);
 		mCondition = mLock.newCondition();
 	}
@@ -50,10 +50,10 @@ public class SimpleSemaphore {
 		// TODO - you fill in here.
 		try {
 			mLock.lockInterruptibly();
-			while (mPermitCount <= 0) {
+			while (mPermitCount.get() <= 0) {
 				mCondition.await();
 			}
-			mPermitCount--;
+			mPermitCount.decrementAndGet();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} finally {
@@ -69,10 +69,10 @@ public class SimpleSemaphore {
 		// TODO - you fill in here.
 		try {
 			mLock.lock();
-			while (mPermitCount <= 0) {
+			while (mPermitCount.get() <= 0) {
 				mCondition.awaitUninterruptibly();
 			}
-			mPermitCount--;
+			mPermitCount.decrementAndGet();
 		} finally {
 			mLock.unlock();
 		}
@@ -85,8 +85,9 @@ public class SimpleSemaphore {
 		// TODO - you fill in here.
 		try {
 			mLock.lock();
-			mPermitCount++;
-			mCondition.signalAll();
+			if (mPermitCount.incrementAndGet() > 0) {
+				mCondition.signal();
+			}
 		} finally {
 			mLock.unlock();
 		}
@@ -98,6 +99,6 @@ public class SimpleSemaphore {
 	public int availablePermits() {
 		// TODO - you fill in here by changing null to the appropriate
 		// return value.
-		return mPermitCount;
+		return mPermitCount.get();
 	}
 }
