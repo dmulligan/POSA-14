@@ -53,9 +53,13 @@
         <activity
             android:name="edu.vuum.mocca.ui.SoundRecordActivity"
             android:label="@string/title_activity_sound_record">
-            <intent-filter> 										<!-- Line 56 -->
-                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-            </intent-filter>
+             <!-- Removed intent filter as Sound Record should not be started with a change of Timezone! 
+                 IF there was a need for an intent filter, attribute exported="false" could be set.
+                 http://developer.android.com/guide/topics/manifest/activity-element.html#exported
+               -->
+             <!-- <intent-filter> 										Line 56
+                  <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+             </intent-filter> -->
         </activity>
         
     </application>
